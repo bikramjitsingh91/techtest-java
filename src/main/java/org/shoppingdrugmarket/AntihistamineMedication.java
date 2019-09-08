@@ -10,7 +10,7 @@ public class AntihistamineMedication extends Medication {
      * @param medicationType the type of the medication, from a defined enum
      */
     public AntihistamineMedication(String medicationName) {
-        super(medicationName, Medication.DECONGESTANT);
+        super(medicationName, Medication.ANTIHISTAMINE);
         this.medicationOptimalPoint = 100;
     }
 
