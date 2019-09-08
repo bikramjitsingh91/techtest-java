@@ -43,51 +43,8 @@ public class Customer {
         int totalOptimalPoints = 0;
         DecimalFormat decimalFormat = new DecimalFormat("#.00");
         String result = "Prescription receipt for " + getName() + ":\n";
-        for (Prescription prescription : prescriptions) {
-            int thisCost = 0;
-            int thisOptimalPoints = 0;
-            switch(prescription.getMedication().getMedicationType()) {
-                // apply discounts for this patient based on the medication type of the size of the prescription
-                case Medication.ANTIHISTAMINE:
-                    int s = prescription.getSize();
-                    if (s > 100) {
-                        thisCost += s * 0.8;
-                    } else if (s > 50) {
-                        thisCost += s * 0.9;
-                    } else {
-                        thisCost += s;
-                    }
-                    break;
-                case Medication.DECONGESTANT:
-                    thisCost += prescription.getSize() * 2;
-                    break;
-                case Medication.PAINKILLER:
-                    int z = prescription.getSize();
-                    if (z > 200) {
-                        thisCost += z * 1.5;
-                    } else if (z > 100) {
-                        thisCost += z * 2;
-                    } else {
-                        thisCost += z * 3;
-                    }
-            }
 
-            // add optimal points for future in-store redemption
-            thisOptimalPoints += 100;
-            // we're running a promo to give bonus optimal points for decongestants!
-            if (prescription.getMedication().getMedicationType() == Medication.DECONGESTANT) {
-                thisOptimalPoints += 200;
-            }
-
-            // now we can add to the string, showing the cost and number of points gained per item
-            result += "\t " + prescription.getMedication().getMedicationName() + ":\t" + decimalFormat.format(thisCost/100.0) + "\t" + String.valueOf(thisOptimalPoints) + "\n";
-            totalCost += (thisCost/100);
-            totalOptimalPoints += thisOptimalPoints;
-        }
-        result += "Total cost:\t" + decimalFormat.format(totalCost) + "\n";
-        result += "Total optimal points earned:\t" + String.valueOf(totalOptimalPoints) + "\n";
-
-        return result;
+        return calculateCostOptimalPoints(totalCost, totalOptimalPoints, result, false);
     }
 
     /**
@@ -101,53 +58,42 @@ public class Customer {
         DecimalFormat decimalFormat = new DecimalFormat("#.00");
         String result = "<html><body><p><h3>Prescription receipt for " + getName() + ":</h3></p>";
         result += "<table><tr><th>Medication</th><th>Price</th><th>Optimal Points</th></tr>";
+
+        return calculateCostOptimalPoints(totalCost, totalOptimalPoints, result, true);
+    }
+
+    private String calculateCostOptimalPoints(double totalCost, int totalOptimalPoints, String result, boolean ishtml){
+        DecimalFormat decimalFormat = new DecimalFormat("#.00");
         for (Prescription prescription : prescriptions) {
             int thisCost = 0;
             int thisOptimalPoints = 0;
-            switch(prescription.getMedication().getMedicationType()) {
-                // apply discounts for this patient based on the medication type of the size of the prescription
-                case Medication.ANTIHISTAMINE:
-                    int s = prescription.getSize();
-                    if (s > 100) {
-                        thisCost += s * 0.8;
-                    } else if (s > 50) {
-                        thisCost += s * 0.9;
-                    } else {
-                        thisCost += s;
-                    }
-                    break;
-                case Medication.DECONGESTANT:
-                    thisCost += prescription.getSize() * 2;
-                    break;
-                case Medication.PAINKILLER:
-                    int z = prescription.getSize();
-                    if (z > 200) {
-                        thisCost += z * 1.5;
-                    } else if (z > 100) {
-                        thisCost += z * 2;
-                    } else {
-                        thisCost += z * 3;
-                    }
-            }
+            int unit = prescription.getSize();
+            thisCost += prescription.getMedication().getMedicationCost(unit);
 
             // add optimal points for future in-store redemption
-            thisOptimalPoints += 100;
-            // we're running a promo to give bonus optimal points for decongestants!
-            if (prescription.getMedication().getMedicationType() == Medication.DECONGESTANT) {
-                thisOptimalPoints += 200;
-            }
+            thisOptimalPoints += prescription.getMedication().getMedicationOptimalPoint();
 
             // now we can add to the string, showing the cost and number of points gained per item
-            result += "<tr><td>" + prescription.getMedication().getMedicationName() +
-                    "</td><td>" + decimalFormat.format(thisCost/100.0) +
-                    "</td><td>" + String.valueOf(thisOptimalPoints) + "</td></tr>";
+            if(ishtml){
+                result += "<tr><td>" + prescription.getMedication().getMedicationName() +
+                        "</td><td>" + decimalFormat.format(thisCost/100.0) +
+                        "</td><td>" + String.valueOf(thisOptimalPoints) + "</td></tr>";
+            }
+            else{
+                result += "\t " + prescription.getMedication().getMedicationName() + ":\t" + decimalFormat.format(thisCost/100.0) + "\t" + String.valueOf(thisOptimalPoints) + "\n";
+            }
             totalCost += thisCost/100;
             totalOptimalPoints += thisOptimalPoints;
         }
-        result += "</table>";
-        result += "<p>Total cost: " + decimalFormat.format(totalCost) + "</p>";
-        result += "<p>Total optimal points earned: " + totalOptimalPoints + "</p></body></html>";
-
+        if (ishtml){
+            result += "</table>";
+            result += "<p>Total cost: " + decimalFormat.format(totalCost) + "</p>";
+            result += "<p>Total optimal points earned: " + totalOptimalPoints + "</p></body></html>";
+        }
+        else {
+            result += "Total cost:\t" + decimalFormat.format(totalCost) + "\n";
+            result += "Total optimal points earned:\t" + String.valueOf(totalOptimalPoints) + "\n";
+        }
         return result;
     }
 

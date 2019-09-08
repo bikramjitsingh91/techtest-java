@@ -3,7 +3,7 @@ package org.shoppingdrugmarket;
 /**
  * A medication that gets sold at Shopping Drug Market
  */
-public class Medication {
+public abstract class Medication {
     public static final int PAINKILLER = 2;
     public static final int DECONGESTANT = 1;
     public static final int ANTIHISTAMINE = 0;
@@ -33,4 +33,8 @@ public class Medication {
     public String getMedicationName() {
         return medicationName;
     }
+
+    public abstract double getMedicationCost(int unit);
+
+    public abstract int getMedicationOptimalPoint();
 }
