@@ -10,7 +10,7 @@ public class ReceiptTest {
 
     @Test
     public void testReceipt() {
-        Medication medication = new Medication("Advil", Medication.PAINKILLER);
+        Medication medication = new PainkillerMedication("Advil");
         Prescription prescription = new Prescription(medication, 150);
         Customer customer = new Customer("John Smith");
 
@@ -23,8 +23,25 @@ public class ReceiptTest {
     }
 
     @Test
+    public void testMultipleMedicationReceipt() {
+        Medication medication = new PainkillerMedication("Advil");
+        Prescription prescription = new Prescription(medication, 150);
+        Prescription prescription1 = new Prescription(new AntihistamineMedication("TestAnti"), 150);
+        Customer customer = new Customer("John Smith");
+
+        customer.addNewPrescription(prescription);
+        customer.addNewPrescription(prescription1);
+        String receipt = customer.generatePrescriptionReceiptText();
+
+        Assert.assertThat(receipt, is(equalToIgnoringCase(
+                "Prescription receipt for John Smith:\n\t Advil:\t3.00\t100\n" +
+                        "\t TestAnti:\t1.20\t100\nTotal cost:\t4.00\nTotal optimal points earned:\t200\n"
+        )));
+    }
+
+    @Test
     public void testHtmlReceipt() {
-        Medication medication = new Medication("Advil", Medication.PAINKILLER);
+        Medication medication = new PainkillerMedication("Advil");
         Prescription prescription = new Prescription(medication, 150);
         Customer customer = new Customer("John Smith");
 
